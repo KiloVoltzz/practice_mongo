@@ -1,38 +1,40 @@
 const express = require("express");
-// const bcrypt = require("bcrypt");
-const cookieParser = require("cookie-parser");
-const app = express();
+const path = require("path");
+const bcrypt = require("bcrypt");
 var jwt = require("jsonwebtoken");
+var cookieParser = require("cookie-parser");
+const User_model = require("./models/user_model");
+
+//middlewares
+const app = express();
 
 //parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
+app.set("view engine", "ejs");
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
-  // res.cookie("name","bob")
-  //   bcrypt.genSalt(10, function (err, salt) {
-  //     bcrypt.hash("lololo", salt, function (err, hash) {
-  //       // Store hash in your password DB.
-  //       console.log(hash);
-  //     });
-  //   });
-  var token = jwt.sign({ email: "bar@gmail.com" }, "shhhhh");
-  res.cookie("token", token);
-  res.send("done");
+  res.render("index");
 });
 
-app.get("/read", (req, res) => {
-//   console.log(req.cookies);
-  //   bcrypt.compare("llololo", "$2b$10$fjfQRYHsyBv4lXTpl5Fbl.oED6HUzcQr2zQIXDsIndQWqesw.Gfj2", function (err, result) {
-  //     // result == true
-  //     console.log(result)
-  //   });
-  let data = jwt.verify(req.cookies.token, "shhhhh")
-  console.log(data); // bar
-  res.send("checking");
+app.post("/create", async (req, res) => {
+  try {
+    let { name, email, password } = req.body;
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const newApp = await User_model.create({
+      name,
+      email,
+      password: hashedPassword,
+    });
+    res.json(newApp);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 app.listen("3000", () => {
-  console.log("Server is running");
+  console.log("server is running");
 });
