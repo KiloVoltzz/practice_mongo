@@ -1,38 +1,12 @@
 const express = require("express");
 const app = express();
-const userModel = require("./models/user");
-const postModel = require("./models/post");
+require("dotenv").config();
 
-app.use(express());
-app.use(express.urlencoded({ extended: true }));
+// Middleware
+app.use(express.json());
 
-app.get("/", (req, res) => {
-  res.send("hello");
-});
+// Routes
+const userRoutes = require("./routes/userRoutes");
+app.use("/api/users", userRoutes);
 
-app.get("/create", async (req, res) => {
-  let newUser = await userModel.create({
-    userName: "rob",
-    email: "rob@gmail.com",
-    age: 22,
-    posts: [],
-  });
-  res.send(newUser);
-});
-
-app.get("/newPost", async (req, res) => {
-  let newPost = await postModel.create({
-    postdata: "readddddd",
-    user: "68a55c6835c988d086bfee1d",
-  });
-
-  let user = await userModel.findOne({ _id: "68a55c6835c988d086bfee1d" });
-//   console.log(newPost)
-  user.posts.push(newPost._id);
-  user.save()
-  res.send(newPost);
-});
-
-app.listen(3000, () => {
-  console.log("servere is running");
-});
+module.exports = app;
