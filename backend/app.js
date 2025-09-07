@@ -56,7 +56,7 @@ app.get("/read", async (req, res) => {
   }
 });
 
-app.get("/delete", async (req, res) => {
+app.get("/remove", async (req, res) => {
   try {
     let readUser = await userModel.findOneAndDelete({userName:"rocks"})
     res.status(201).send(readUser);
